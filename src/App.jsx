@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import "./App.css";
 import abi from "./utils/claim.json";
+import twitterLogo from "./assets/twitter-logo.svg"
 
 const getEthereumObject = () => window.ethereum;
 
@@ -79,7 +80,7 @@ const App = () => {
         /*
         * Execute the actual call from your smart contract
         */
-        const callTxn = await callContract.call(value, {value: ethers.utils.parseEther("0")});
+        const callTxn = await callContract.call(value, {value: ethers.utils.parseEther("0.001")});
         console.log("Mining...", callTxn.hash);
 
         await callTxn.wait();
@@ -217,6 +218,7 @@ const App = () => {
   }, []);
 
   return (
+    <div className="App">
     <div className="mainContainer">
       <div className="dataContainer">
         <div className="header">
@@ -289,12 +291,19 @@ const App = () => {
           </button>
         )}
 
-        <button className="callButton">
-				  <a href="https://twitter.com/kongtaoxing">点击关注推特</a>
-			  </button>
+        <div className="footer-container">
+					<img alt="Twitter Logo" className="twitter-logo" src={twitterLogo} />
+					<a
+						className="footer-text"
+						href="https://twitter.com/kongtaoxing"
+						target="_blank"
+						rel="noreferrer"
+					>{`built by @kongtaoxing`}</a>
+				</div>
 
       </div>
     </div>
+  </div>
   );
 };
 
