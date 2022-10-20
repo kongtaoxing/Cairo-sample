@@ -45,28 +45,26 @@
   display: grid;
   gap: 4px;
   grid-template-columns: auto auto;
-  background: rgba(0,0,0,.1);
-  padding: 8px;
+  background-color: #ffffff;
+  padding: 7px;
 	margin-top:16px;
-  border-radius:8px;
+  border-radius:5px;
 }
 
 .grid-item {
-  background-color: rgba(255, 255, 255, 0.6);
-	border:none;
+  background-color: #ffffff;
+	border:solid;
+  border-width: thin;
   border-radius:8px;
-  padding: 4px 8px;
+  padding: 0px 8px;
 	font-size:12px;
+  color: black;
 }
 
-button.grid-item {cursor:pointer;}
-.grid-container1 {
-  background: rgba(0,0,0,.1);
-  padding: 8px;
-	margin:8px 0;
-  border-radius:8px;
-  background-color: white;
+button.grid-item {
+  cursor:pointer;
 }
+
 
 .twitter-logo {
   width: 35px;
