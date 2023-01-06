@@ -2,7 +2,8 @@ import React, {useEffect, useState} from "react";
 import { connect } from "@argent/get-starknet";
 import { Abi, Contract, uint256} from "starknet";
 import "./App.css";
-import abi from "./utils/claim.json";
+import abi_1 from "./utils/contract_1.json";
+import abi_2 from "./utils/contract_2.json";
 import twitterLogo from "./assets/twitter-logo.svg"
 
 const getStarknetObject = () => window.starknet;
@@ -16,7 +17,7 @@ const findStarknetAccount = async () => {
 		const starknet = getStarknetObject();
 
 		/*
-		 * First make sure we have access to the Ethereum object.
+		 * First make sure we have access to the Starknet object.
 		 */
 		if (!starknet) {
 			console.error("Make sure you have Argent!");
@@ -26,7 +27,7 @@ const findStarknetAccount = async () => {
 		console.log("We have the Argent object", starknet);
 		const accounts = starknet.account;
 
-		if (accounts.length !== 0) {
+		if (accounts.address.length !== 0) {
 			const account = accounts.address;
 			console.log("Found an authorized account:", account);
 			return account;
@@ -43,12 +44,11 @@ const findStarknetAccount = async () => {
 const App = () => {
 	const [currentAccount, setCurrentAccount] = useState("");
 	const [isMining, setIsMining] = useState(false);
-	const [value, setValue] = useState();
-	//const [end, setEnd] = useState(200);
-	const [changes, setChange] = useState("");
+	const [value1, setValue1] = useState("");
+	const [value2, setValue2] = useState("");
 
-	const contractAddress = "0x06fba4abcca41b2ae445f6c97d1da9e71567a560be908bc2df7606635c9057f8";
-	const contractAbi = abi.abi;
+  const contractAddress_1 = "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7";
+	const contractAddress_2 = "0x78f36c1d59dd29e00a0bb60aa2a9409856f4f9841c47f165aba5bab4225aa6b";
   const [owner, setOwner] = useState("");
 
 	const connectWallet = async () => {
@@ -69,27 +69,65 @@ const App = () => {
 		}
 	};
 
-	const call = async () => {
+  const call_1 = async () => {
 		try {
 			const {starknet} = window;
 
 			if (starknet) {
 				const signer = starknet.account;
-				const callContract = new Contract(contractAbi, contractAddress, signer);
+				const callContract = new Contract(abi_1.abi, contractAddress_1, signer);
+        // console.log(uint256.bnToUint256(value1));
 
-				/*
-				 * Execute the actual call from your smart contract
-				 */
-				const callTxn = await callContract.mint();
-        setIsMing(true);
-				console.log("Mining...", callTxn.hash);
+        // cal contract from signer
+        // const callTx = signer.execute(
+        //   {
+        //     contractAddress: contractAddress_1,
+        //     entrypoint: "approve", 
+        //     calldata: starknet.stark.compileCalldata({
+        //       spender: contractAddress_2,
+        //       amount: [value1]
+        //     })
+        //   }
+        // );
 
-				await callTxn.wait();
-				console.log("Mined -- ", callTxn.hash);
-        setIsMing(false);
-				console.log("Minted successfully");
+        // call contract from contract
+				const callTx = await callContract.approve(contractAddress_2, [value1, '0']);
+        await callTx.waitForTransaction(callContract.transaction_hash);
+        console.log('Txn hash is:', callContraxt.transaction_hash);
 			} else {
-				console.log("Ethereum object doesn't exist!");
+				console.log("Starknet object doesn't exist!");
+			}
+		} catch (error) {
+			console.error(error);
+		}
+	}
+  
+	const call_2 = async () => {
+		try {
+			const {starknet} = window;
+
+			if (starknet) {
+				const signer = starknet.account;
+				const callContract = new Contract(abi_2.abi, contractAddress_2, signer);
+				await callContract.mint();
+			} else {
+				console.log("Starknet object doesn't exist!");
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	}
+
+  const multiCall = async () => {
+		try {
+			const {starknet} = window;
+
+			if (starknet) {
+				const signer = starknet.account;
+				const callContract = new Contract(abi_2.abi, contractAddress_2, signer);
+				await callContract.mint();
+			} else {
+				console.log("Starknet object doesn't exist!");
 			}
 		} catch (error) {
 			console.log(error);
@@ -104,7 +142,7 @@ const App = () => {
 		const account = await findStarknetAccount();
 		if (account !== null) {
 			setCurrentAccount(account);
-      console.log('account in useEffect', account)
+      // console.log('account in useEffect', account)
       if (starknet) {
     		const signer = starknet.account;
         // setOwner(await callContract.getOwner());
@@ -144,10 +182,10 @@ const App = () => {
 						<span className="grid-item">
               args for contranct #1：
             </span>
-						<input type="text" value={value} placeholder = '100' style={{borderRadius:'4px',border:'none'}} onChange={a=>{setValue(a.target.value)}} />
+						<input type="text" value={value1} placeholder = '100' style={{borderRadius:'4px',border:'none'}} onChange={a=>{setValue1(a.target.value)}} />
 				</div>)}
         
-				<button className="callButton" onClick={call}> 
+				<button className="callButton" onClick={call_1}> 
           Call
         </button>
 
@@ -157,16 +195,16 @@ const App = () => {
 						<span className="grid-item">
               args for contranct #2：
             </span>
-						<input type="text" value={value} placeholder = '100' style={{borderRadius:'4px',border:'none'}} onChange={a=>{setValue(a.target.value)}} />
+						<input type="text" value={value2} placeholder = '100' style={{borderRadius:'4px',border:'none'}} onChange={a=>{setValue2(a.target.value)}} />
 				</div>
 
-        <button className="callButton" onClick={call}> 
+        <button className="callButton" onClick={call_2}> 
           Call
         </button>
 
         <br></br>
         
-        <button className="callButton" onClick={call}> 
+        <button className="callButton" onClick={multiCall}> 
           multiCall
         </button>
 
