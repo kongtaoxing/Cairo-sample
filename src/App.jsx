@@ -48,7 +48,7 @@ const App = () => {
 	const [changes, setChange] = useState("");
 
 	const contractAddress = "0x06fba4abcca41b2ae445f6c97d1da9e71567a560be908bc2df7606635c9057f8";
-	const abi = abi.abi;
+	const contractAbi = abi.abi;
   const [owner, setOwner] = useState("");
 
 	const connectWallet = async () => {
@@ -75,14 +75,12 @@ const App = () => {
 
 			if (starknet) {
 				const signer = starknet.account;
-				const callContract = new Contract(abi, contractAddress, signer);
+				const callContract = new Contract(contractAbi, contractAddress, signer);
 
 				/*
 				 * Execute the actual call from your smart contract
 				 */
-				const callTxn = await callContract.mint({
-					value: ethers.utils.parseEther("0.00")
-				});
+				const callTxn = await callContract.mint();
         setIsMing(true);
 				console.log("Mining...", callTxn.hash);
 
