@@ -1,34 +1,33 @@
 import React, {useEffect, useState} from "react";
-import {ethers} from "ethers";
+import { connect } from "@argent/get-starknet";
+import { Abi, Contract, uint256} from "starknet";
 import "./App.css";
 import abi from "./utils/claim.json";
 import twitterLogo from "./assets/twitter-logo.svg"
 
-const getEthereumObject = () => window.ethereum;
+const getStarknetObject = () => window.starknet;
 
 /*
  * This function returns the first linked account found.
  * If there is no account linked, it will return null.
  */
-const findMetaMaskAccount = async () => {
+const findStarknetAccount = async () => {
 	try {
-		const ethereum = getEthereumObject();
+		const starknet = getStarknetObject();
 
 		/*
 		 * First make sure we have access to the Ethereum object.
 		 */
-		if (!ethereum) {
-			console.error("Make sure you have Metamask!");
+		if (!starknet) {
+			console.error("Make sure you have Argent!");
 			return null;
 		}
 
-		console.log("We have the Ethereum object", ethereum);
-		const accounts = await ethereum.request({
-			method: "eth_accounts"
-		});
+		console.log("We have the Argent object", starknet);
+		const accounts = starknet.account;
 
 		if (accounts.length !== 0) {
-			const account = accounts[0];
+			const account = accounts.address;
 			console.log("Found an authorized account:", account);
 			return account;
 		} else {
@@ -48,171 +47,49 @@ const App = () => {
 	//const [end, setEnd] = useState(200);
 	const [changes, setChange] = useState("");
 
-	const contractAddress = "0x6797bc206AF7D06ffb8724d079fb0FB4Bc37c0cD";
-	const contractABI = abi.abi;
+	const contractAddress = "0x06fba4abcca41b2ae445f6c97d1da9e71567a560be908bc2df7606635c9057f8";
+	const abi = abi.abi;
   const [owner, setOwner] = useState("");
 
 	const connectWallet = async () => {
 		try {
-			const ethereum = getEthereumObject();
-			if (!ethereum) {
-				alert("Get MetaMask!");
+			const starknet = getStarknetObject();
+			if (!starknet) {
+				alert("Get Argent Wallet!");
 				return;
 			}
 
-			const accounts = await ethereum.request({
-				method: "eth_requestAccounts",
-			});
+      await starknet.enable();
+			const account = starknet.account;
 
-			console.log("Connected", accounts[0]);
-			setCurrentAccount(accounts[0]);
+			console.log("Connected", account.address);
+			setCurrentAccount(account.address);
 		} catch (error) {
 			console.error(error);
 		}
 	};
 
-	const _mint = async () => {
+	const call = async () => {
 		try {
-			const {
-				ethereum
-			} = window;
+			const {starknet} = window;
 
-			if (ethereum) {
-				const provider = new ethers.providers.Web3Provider(ethereum);
-				const signer = provider.getSigner();
-				const callContract = new ethers.Contract(contractAddress, contractABI, signer);
+			if (starknet) {
+				const signer = starknet.account;
+				const callContract = new Contract(abi, contractAddress, signer);
 
 				/*
 				 * Execute the actual call from your smart contract
 				 */
-				const callTxn = await callContract.call(value, {
-					value: ethers.utils.parseEther("0.001")
+				const callTxn = await callContract.mint({
+					value: ethers.utils.parseEther("0.00")
 				});
+        setIsMing(true);
 				console.log("Mining...", callTxn.hash);
 
 				await callTxn.wait();
 				console.log("Mined -- ", callTxn.hash);
-
-				count = await callContract.getOwner();
+        setIsMing(false);
 				console.log("Minted successfully");
-			} else {
-				console.log("Ethereum object doesn't exist!");
-			}
-		} catch (error) {
-			console.log(error);
-		}
-	}
-
-	const _getOwner = async () => {
-		try {
-			const {
-				ethereum
-			} = window;
-
-			if (ethereum) {
-				const provider = new ethers.providers.Web3Provider(ethereum);
-				const signer = provider.getSigner();
-				const callContract = new ethers.Contract(contractAddress, contractABI, signer);
-
-				/*
-				 * Execute the actual call from your smart contract
-				 */
-				const callTxn = await callContract.getOwner();
-				console.log("The owner is ", callTxn);
-			} else {
-				console.log("Ethereum object doesn't exist!");
-			}
-		} catch (error) {
-			console.log(error);
-		}
-	}
-
-	const changeOwner = async () => {
-		console.log(currentAccount);
-		try {
-			const {
-				ethereum
-			} = window;
-
-			if (ethereum) {
-				const provider = new ethers.providers.Web3Provider(ethereum);
-				const signer = provider.getSigner();
-				const callContract = new ethers.Contract(contractAddress, contractABI, signer);
-
-				owner = await callContract.getOwner();
-				console.log("The owner of the contract is:", owner);
-
-				/*
-				 * Execute the actual call from your smart contract
-				 */
-				const callTxn = await callContract.changeOwner(changes);
-				console.log("Mining...", callTxn.hash);
-
-				await callTxn.wait();
-				console.log("Mined -- ", callTxn.hash);
-
-				count = await callContract.getOwner();
-				console.log("The owner of the contract is:", owner);
-			} else {
-				console.log("Ethereum object doesn't exist!");
-			}
-		} catch (error) {
-			console.log(error);
-		}
-	}
-
-	const withdraw = async () => {
-		try {
-			const {
-				ethereum
-			} = window;
-
-			if (ethereum) {
-				const provider = new ethers.providers.Web3Provider(ethereum);
-				const signer = provider.getSigner();
-				const callContract = new ethers.Contract(contractAddress, contractABI, signer);
-
-				/*
-				 * Execute the actual call from your smart contract
-				 */
-				const callTxn = await callContract.withdraw();
-				console.log("Mining...", callTxn.hash);
-
-				await callTxn.wait();
-				console.log("Mined -- ", callTxn.hash);
-
-				count = await callContract.getOwner();
-				console.log("Withdrew successfully");
-			} else {
-				console.log("Ethereum object doesn't exist!");
-			}
-		} catch (error) {
-			console.log(error);
-		}
-	}
-
-	const destroy = async () => {
-		try {
-			const {
-				ethereum
-			} = window;
-
-			if (ethereum) {
-				const provider = new ethers.providers.Web3Provider(ethereum);
-				const signer = provider.getSigner();
-				const callContract = new ethers.Contract(contractAddress, contractABI, signer);
-
-				/*
-				 * Execute the actual call from your smart contract
-				 */
-				const callTxn = await callContract.destr();
-				console.log("Mining...", callTxn.hash);
-
-				await callTxn.wait();
-				console.log("Mined -- ", callTxn.hash);
-
-				count = await callContract.getOwner();
-				console.log("Withdrew successfully");
 			} else {
 				console.log("Ethereum object doesn't exist!");
 			}
@@ -226,14 +103,13 @@ const App = () => {
 	 * More technically, when the App component "mounts".
 	 */
 	useEffect(async () => {
-		const account = await findMetaMaskAccount();
+		const account = await findStarknetAccount();
 		if (account !== null) {
 			setCurrentAccount(account);
-      if (ethereum) {
-    		const provider = new ethers.providers.Web3Provider(ethereum);
-    		const signer = provider.getSigner();
-    		const callContract = new ethers.Contract(contractAddress, contractABI, signer);
-        setOwner(await callContract.getOwner());
+      console.log('account in useEffect', account)
+      if (starknet) {
+    		const signer = starknet.account;
+        // setOwner(await callContract.getOwner());
       }
 		}
 	}, []);
@@ -243,11 +119,11 @@ const App = () => {
     <div className="mainContainer">
       <div className="dataContainer">
         <div className="header">
-          🌿一键薄荷🌿
+          Starknet Sample Dapp
         </div>
 
         <div className="bio">
-          批量mint脚本，输入数量之后点击Mint即可，喜欢的话欢迎关注我的推特
+          This is a sample dapp build on starknet, sample for call and multicall. Available on testnet
         </div>
 
         {/*
@@ -258,59 +134,43 @@ const App = () => {
             Connect Wallet
           </button>
         )}
+
+        {/*{currentAccount && (
+          <div className="bio">
+          Connected Address: {currentAccount}
+        </div>
+        )}*/}
         
         {isMining ? (<div className="grid-container"><span className="loading">Mining</span></div>) : (
 					<div className="grid-container">
 						<span className="grid-item">
-              请输入想要mint的数量：
+              args for contranct #1：
             </span>
 						<input type="text" value={value} placeholder = '100' style={{borderRadius:'4px',border:'none'}} onChange={a=>{setValue(a.target.value)}} />
 				</div>)}
-
-        {/*
-        {isMining ? (<div className="grid-container"><span className="loading">Mining</span></div>) : (
-					<div className="grid-container">
-						<span className="grid-item">
-              请输入截止的编号：
-            </span>
-						<input type="text" style={{borderRadius:'4px',border:'none'}} onChange={a=>{setEnd(a.target.value)}} />
-				</div>)}
-        */}
         
-				<button className="callButton" onClick={_mint}> 
-          Mint 
+				<button className="callButton" onClick={call}> 
+          Call
         </button>
-        
-        {(currentAccount  == owner.toLowerCase())&&(<div className="grid-container">
+
+        <br></br>
+
+        <div className="grid-container">
 						<span className="grid-item">
-              请输入新owner地址: 
+              args for contranct #2：
             </span>
-						<input type="text" value={changes} placeholder = "0x0000000000000000000000000000000000000000" style={{borderRadius:'4px',border:'none'}} onChange={a=>{setChange(a.target.value)}} />
-				  </div>)}
-        
-        {(currentAccount == owner.toLowerCase()) && (
-          <button className="callButton" onClick={changeOwner}>
-            Change Owner
-          </button>
-        )}
+						<input type="text" value={value} placeholder = '100' style={{borderRadius:'4px',border:'none'}} onChange={a=>{setValue(a.target.value)}} />
+				</div>
 
-        {(currentAccount  == owner.toLowerCase()) && (
-          <button className="callButton" onClick={_getOwner}>
-            Get Owner
-          </button>
-        )}
+        <button className="callButton" onClick={call}> 
+          Call
+        </button>
 
-        {(currentAccount  == owner.toLowerCase()) && (
-          <button className="callButton" onClick={withdraw}>
-            Withdraw
-          </button>
-        )}
+        <br></br>
         
-        {(currentAccount  == owner.toLowerCase()) && (
-          <button className="callButton" onClick={destroy}>
-            Destroy Contract Manually
-          </button>
-        )}
+        <button className="callButton" onClick={call}> 
+          multiCall
+        </button>
 
         <div className="footer-container">
 					<img alt="Twitter Logo" className="twitter-logo" src={twitterLogo} />
