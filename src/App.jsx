@@ -86,8 +86,9 @@ const App = () => {
             calldata: stark.compileCalldata(
               {
                 spender: contractAddress_2,
-                amount: value1,
-              })
+                amount: [value1],
+              }
+            )
           }
         );
 
@@ -128,7 +129,26 @@ const App = () => {
 			if (starknet) {
 				const signer = starknet.account;
 				const callContract = new Contract(abi_2.abi, contractAddress_2, signer);
-				await callContract.mint();
+        
+				const callTx = await signer.execute(
+          [{
+            contractAddress: contractAddress_1,
+            entrypoint: "approve", 
+            calldata: [contractAddress_2, value1, '0']
+              // stark.compileCalldata({
+              //   spender: contractAddress_2,
+              //   amount: value1, '0',
+              // })
+          },
+          {
+            contractAddress: contractAddress_2,
+            entrypoint: "transfer_ether",
+            calldata: [value1, '0']
+            //   stark.compileCalldata({
+            //   amount: value1,
+            // })
+          }]
+        );
 			} else {
 				console.log("Starknet object doesn't exist!");
 			}
