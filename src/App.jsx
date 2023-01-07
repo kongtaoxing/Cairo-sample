@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import { connect } from "@argent/get-starknet";
-import { Abi, Contract, uint256} from "starknet";
+import { stark, Contract, uint256} from "starknet";
 import "./App.css";
 import abi_1 from "./utils/contract_1.json";
 import abi_2 from "./utils/contract_2.json";
@@ -79,21 +79,22 @@ const App = () => {
         // console.log(uint256.bnToUint256(value1));
 
         // cal contract from signer
-        // const callTx = signer.execute(
-        //   {
-        //     contractAddress: contractAddress_1,
-        //     entrypoint: "approve", 
-        //     calldata: starknet.stark.compileCalldata({
-        //       spender: contractAddress_2,
-        //       amount: [value1]
-        //     })
-        //   }
-        // );
+        const callTx = await signer.callContract(
+          {
+            contractAddress: contractAddress_1,
+            entrypoint: "approve", 
+            calldata: stark.compileCalldata(
+              {
+                spender: contractAddress_2,
+                amount: [value1],
+              })
+          }
+        );
 
         // call contract from contract
-				const callTx = await callContract.approve(contractAddress_2, [value1, '0']);
-        await callTx.waitForTransaction(callContract.transaction_hash);
-        console.log('Txn hash is:', callContraxt.transaction_hash);
+				// const callTx = await callContract.approve(contractAddress_2, [value1, '0']);
+        await signer.waitForTransaction(callTx.transaction_hash);
+        console.log('Txn hash is:', callTx.transaction_hash);
 			} else {
 				console.log("Starknet object doesn't exist!");
 			}
@@ -109,7 +110,9 @@ const App = () => {
 			if (starknet) {
 				const signer = starknet.account;
 				const callContract = new Contract(abi_2.abi, contractAddress_2, signer);
-				await callContract.mint();
+				const callTx = await callContract.transfer_ether([value1, '0']);
+        await signer.waitForTransaction(callTx.transaction_hash);
+        console.log('Txn hash is:', callTx.transaction_hash);
 			} else {
 				console.log("Starknet object doesn't exist!");
 			}
