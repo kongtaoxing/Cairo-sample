@@ -79,14 +79,14 @@ const App = () => {
         // console.log(uint256.bnToUint256(value1));
 
         // cal contract from signer
-        const callTx = await signer.callContract(
+        const callTx = await signer.execute(
           {
             contractAddress: contractAddress_1,
             entrypoint: "approve", 
             calldata: stark.compileCalldata(
               {
                 spender: contractAddress_2,
-                amount: [value1],
+                amount: value1,
               })
           }
         );
