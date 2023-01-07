@@ -50,6 +50,7 @@ const App = () => {
   const contractAddress_1 = "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7";
 	const contractAddress_2 = "0x78f36c1d59dd29e00a0bb60aa2a9409856f4f9841c47f165aba5bab4225aa6b";
   const [owner, setOwner] = useState("");
+  // 1000000000000000 wei is 0.001Ether
 
 	const connectWallet = async () => {
 		try {
@@ -83,12 +84,15 @@ const App = () => {
           {
             contractAddress: contractAddress_1,
             entrypoint: "approve", 
-            calldata: stark.compileCalldata(
-              {
+            calldata: 
+              // Use a simple array to display data
+              // [contractAddress_2, value1, '0'] 
+
+              // Use compileCalldata to display data
+              stark.compileCalldata({
                 spender: contractAddress_2,
-                amount: [value1],
-              }
-            )
+                amount: {type: 'struct', low: value1, high: '0'},
+              })
           }
         );
 
@@ -112,6 +116,12 @@ const App = () => {
 				const signer = starknet.account;
 				const callContract = new Contract(abi_2.abi, contractAddress_2, signer);
 				const callTx = await callContract.transfer_ether([value1, '0']);
+        
+        // const callTx = await signer.execute({
+        //   contractAddress: contractAddress_2,
+        //   entrypoint: "transfer_ether",
+        //   calldata: [value1, '0']
+        // });
         await signer.waitForTransaction(callTx.transaction_hash);
         console.log('Txn hash is:', callTx.transaction_hash);
 			} else {
@@ -134,21 +144,24 @@ const App = () => {
           [{
             contractAddress: contractAddress_1,
             entrypoint: "approve", 
-            calldata: [contractAddress_2, value1, '0']
-              // stark.compileCalldata({
-              //   spender: contractAddress_2,
-              //   amount: value1, '0',
-              // })
+            calldata: 
+              // [contractAddress_2, value1, '0'] // Use a simple array to display data
+              stark.compileCalldata({
+                spender: contractAddress_2,
+                amount: {type: 'struct', low: value1, high: '0'},
+              })
           },
           {
             contractAddress: contractAddress_2,
             entrypoint: "transfer_ether",
             calldata: [value1, '0']
             //   stark.compileCalldata({
-            //   amount: value1,
+            //   amount: {type: 'struct, low: value1, high: '0'},
             // })
           }]
         );
+        await signer.waitForTransaction(callTx.transaction_hash);
+        console.log('Txn hash is:', callTx.transaction_hash);
 			} else {
 				console.log("Starknet object doesn't exist!");
 			}
