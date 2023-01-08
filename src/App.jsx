@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import { connect } from "@argent/get-starknet";
+// import { connect } from "@argent/get-starknet";
 import { stark, Contract, uint256} from "starknet";
 import "./App.css";
 import abi_1 from "./utils/contract_1.json";
@@ -48,7 +48,7 @@ const App = () => {
 	const [value2, setValue2] = useState("");
 
   const contractAddress_1 = "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7";
-	const contractAddress_2 = "0x78f36c1d59dd29e00a0bb60aa2a9409856f4f9841c47f165aba5bab4225aa6b";
+	const contractAddress_2 = "0x15e90f807a00a01df845460324fbcd33986f2df3cc9d981e9e8b5005b7f595e";
   const [owner, setOwner] = useState("");
   // 1000000000000000 wei is 0.001Ether
 
@@ -156,7 +156,7 @@ const App = () => {
             entrypoint: "transfer_ether",
             calldata: [value1, '0']
             //   stark.compileCalldata({
-            //   amount: {type: 'struct, low: value1, high: '0'},
+            //   amount: {type: 'struct', low: value1, high: '0'},
             // })
           }]
         );
