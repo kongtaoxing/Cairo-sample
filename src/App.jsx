@@ -139,7 +139,23 @@ const App = () => {
 			if (starknet) {
 				const signer = starknet.account;
 				const callContract = new Contract(abi_2.abi, contractAddress_2, signer);
-        
+
+        // multicall data
+        // const call = {contractAddress: `0x06a05844a03bb9e744479e3298f54705a35966ab04140d3d8dd797c1f6dc49d0`,
+        //              entrypoint: 'evolve',
+        //              calldata: ['0x7300100008000000000000000000000000']
+        //              };
+        // const call_string = JSON.stringify(call) + ',';
+        // const call_raw = '[' + call_string.repeat(value2) + ']';
+
+        // const transfer_ether = [
+        //     {
+        //       contractAddress: contractAddress_1,
+        //       entrypoint: 'transfer',
+        //       calldata: ['0x0746f97FbD3C65916Ee7024Bf5a6cF6a813aab13dC7793633D7159508170A84E', String(40000000000000 * eval(value2)), '0']
+        //     }];
+        // const callData = eval(call_raw).concat(transfer_ether);
+        // multicall data
 				const callTx = await signer.execute(
           [{
             contractAddress: contractAddress_1,
