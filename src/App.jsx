@@ -186,7 +186,11 @@ const App = () => {
             //   stark.compileCalldata({
             //   amount: {type: 'struct', low: value1, high: '0'},
             // })
-          }]
+          }],
+          undefined,
+          {
+            nonce: 102,
+          }
         );
         await signer.waitForTransaction(callTx.transaction_hash);
         console.log('Txn hash is:', callTx.transaction_hash);
