@@ -93,6 +93,12 @@ const App = () => {
                 spender: contractAddress_2,
                 amount: {type: 'struct', low: value1, high: '0'},
               })
+          },
+          undefined,  // This part is for contract abi
+          {
+            // maxFee: 888888888888888888,
+            // version: '2',
+            nonce: '101',  // or just user int 101 is ok
           }
         );
 
@@ -121,7 +127,13 @@ const App = () => {
         //   contractAddress: contractAddress_2,
         //   entrypoint: "transfer_ether",
         //   calldata: [value1, '0']
-        // });
+        // },
+        //   undefined,  // This part is for contract abi
+        //   {
+        //     // maxFee: 888888888888888888,
+        //     // version: '2',
+        //     nonce: '101'
+        //   });
         await signer.waitForTransaction(callTx.transaction_hash);
         console.log('Txn hash is:', callTx.transaction_hash);
 			} else {
